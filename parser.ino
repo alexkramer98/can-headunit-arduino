@@ -10,6 +10,8 @@ bool isCanDead = true;
 
 void setup() {
   Serial.begin(115200);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
   initCan();
 }
 
@@ -25,6 +27,8 @@ void parseCan() {
   if (CAN_MSGAVAIL == CAN.checkReceive()) {
     lastCanActive = millis();
     if (isCanDead) {
+      digitalWrite(3, HIGH);
+      digitalWrite(4, HIGH);
       Serial.println("BOOT RPI!");
     }
     isCanDead = false;
@@ -86,6 +90,8 @@ void parseCan() {
     }
   } else {
     if (millis() - lastCanActive >= 1000 && !canDead) {
+      digitalWrite(3, LOW);
+      digitalWrite(4, LOW);
       Serial.println("KILL RPI");
       isCanDead = true;
     }
