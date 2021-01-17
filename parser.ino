@@ -5,7 +5,8 @@
 const int SPI_CS_PIN = 10;
 mcp2515_can CAN(SPI_CS_PIN);
 
-boolean canDead = false;
+int lastCanActive = 0;
+bool isCanDead = true;
 
 void setup() {
   Serial.begin(115200);
@@ -22,26 +23,27 @@ void parseCan() {
   unsigned char buf[8];
 
   if (CAN_MSGAVAIL == CAN.checkReceive()) {
-    if (canDead) {
-      Serial.println("BOOTING RPI!!");
+    lastCanActive = millis();
+    if (isCanDead) {
+      Serial.println("BOOT RPI!");
     }
-    canDead = false;
+    isCanDead = false;
+
     CAN.readMsgBuf(&len, buf);
     unsigned long canId = CAN.getCanId();
 
     switch(canId) {
       case 0x3C3:
-        Serial.print(">brightness:");
-        Serial.print(round(buf[2] / 112 * 255));
-        Serial.print(">dayTime:");
-        Serial.print(buf[5] == 16);
+        Serial.print("brightness:");
+        Serial.println(round(buf[2] / 112 * 255));
+        Serial.print("dayTime:");
+        Serial.println(buf[5] == 16);
         break;
       case 0x380:
-        Serial.print(">inReverse:");
-        Serial.print(buf[2] == 76);
+        Serial.print("inReverse:");
+        Serial.println(buf[2] == 76);
         break;
       case 0x3C4:
-        Serial.print(">activeSwcButton:");
         String activeButton;
         switch (buf[0]) {
           case 128:
@@ -62,7 +64,7 @@ void parseCan() {
           case 4:
             activeButton = "source";
         }
-        if (!activeButton) {
+        if (activeButton == NULL) {
           switch(buf[1]) {
             case 128:
               activeButton = "phone";
@@ -77,14 +79,16 @@ void parseCan() {
               activeButton = "down";
           }
         }
-        Serial.print(activeButton);
+        if (activeButton != NULL) {
+          Serial.print("activeSwcButton:");
+          Serial.println(activeButton);
+        }
     }
-  }
-  else {
-    if (!canDead) {
-      Serial.println("CAN DEAD! SHUTTING DOWN RPI!");
+  } else {
+    if (millis() - lastCanActive >= 1000 && !canDead) {
+      Serial.println("KILL RPI");
+      isCanDead = true;
     }
-    canDead = true;
   }
 }
 
