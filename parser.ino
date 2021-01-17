@@ -89,7 +89,7 @@ void parseCan() {
         }
     }
   } else {
-    if (millis() - lastCanActive >= 1000 && !canDead) {
+    if (millis() - lastCanActive >= 1000 && !isCanDead) {
       digitalWrite(3, LOW);
       digitalWrite(4, LOW);
       Serial.println("KILL RPI");
