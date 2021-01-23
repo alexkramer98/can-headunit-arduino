@@ -5,7 +5,7 @@
 const int SPI_CS_PIN = 10;
 mcp2515_can CAN(SPI_CS_PIN);
 
-int lastCanActive = 0;
+long lastCanActive = 0;
 bool isCanDead = true;
 
 void setup() {
@@ -89,7 +89,7 @@ void parseCan() {
         }
     }
   } else {
-    if (millis() - lastCanActive >= 1000 && !isCanDead) {
+    if (millis() - lastCanActive >= 5000 && !isCanDead) {
       digitalWrite(3, LOW);
       digitalWrite(4, LOW);
       Serial.println("KILL RPI");
