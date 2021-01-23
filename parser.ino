@@ -41,7 +41,7 @@ void parseCan() {
         Serial.print("brightness:");
         Serial.println(round(buf[2] / 112 * 255));
         Serial.print("dayTime:");
-        Serial.println(buf[5] == 16);
+        Serial.println(buf[5] != 32);
         break;
       case 0x380:
         Serial.print("inReverse:");
