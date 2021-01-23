@@ -39,7 +39,7 @@ void parseCan() {
     switch(canId) {
       case 0x3C3:
         Serial.print("brightness:");
-        Serial.println(round(buf[2] / 112 * 255));
+        Serial.println((int) ((float) buf[2] / (float) 112 * (float) 255));
         Serial.print("dayTime:");
         Serial.println(buf[5] != 32);
         break;
